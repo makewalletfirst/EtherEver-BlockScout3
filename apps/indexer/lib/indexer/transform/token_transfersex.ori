@@ -227,25 +227,9 @@ defmodule Indexer.Transform.TokenTransfers do
 
       acc
   end
-  
-  # [HACK] 불량 토큰 데이터 무시를 위한 Wrapper 함수
-  # 어떤 데이터가 들어오든 일단 받아서 내부 로직(do_parse_params)을 실행해보고,
-  # 에러가 터지면 죽지 말고 nil(무시)을 리턴합니다.
-  defp parse_params(log) do
-    try do
-      do_parse_params(log)
-    rescue
-      # 어떤 에러가 나더라도 무시합니다.
-      _ -> nil
-    catch
-      # catch로 잡히는 에러도 무시합니다.
-      _, _ -> nil
-    end
-  end  
-
 
   # ERC-20 token transfer
-  defp do_parse_params(%{second_topic: second_topic, third_topic: third_topic, fourth_topic: nil} = log)
+  defp parse_params(%{second_topic: second_topic, third_topic: third_topic, fourth_topic: nil} = log)
        when not is_nil(second_topic) and not is_nil(third_topic) do
     if arc_native_token_transfer_event?(log) do
       # for :arc chain type we need to ignore ERC-20 Transfer events from the native token as there are
@@ -287,7 +271,7 @@ defmodule Indexer.Transform.TokenTransfers do
   end
 
   # ERC-20 token transfer for WETH or Arc native token mint/burn
-  defp do_parse_params(%{second_topic: second_topic, third_topic: nil, fourth_topic: nil} = log)
+  defp parse_params(%{second_topic: second_topic, third_topic: nil, fourth_topic: nil} = log)
        when not is_nil(second_topic) do
     [decoded_amount] = decode_data(log.data, [{:uint, 256}])
     decimal_amount = Decimal.new(decoded_amount || 0)
@@ -337,7 +321,7 @@ defmodule Indexer.Transform.TokenTransfers do
   end
 
   # ERC-721 token transfer with topics as addresses
-  defp do_parse_params(%{second_topic: second_topic, third_topic: third_topic, fourth_topic: fourth_topic} = log)
+  defp parse_params(%{second_topic: second_topic, third_topic: third_topic, fourth_topic: fourth_topic} = log)
        when not is_nil(second_topic) and not is_nil(third_topic) and not is_nil(fourth_topic) do
     [token_id] = decode_data(fourth_topic, [{:uint, 256}])
 
@@ -365,7 +349,7 @@ defmodule Indexer.Transform.TokenTransfers do
   end
 
   # ERC-721 token transfer with info in data field instead of in log topics
-  defp do_parse_params(
+  defp parse_params(
          %{
            second_topic: nil,
            third_topic: nil,
