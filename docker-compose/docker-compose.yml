@@ -22,11 +22,11 @@ services:
   backend:
     # [수정됨] 방금 빌드한 커스텀 이미지를 사용
     #image: my-blockscout:custom
-    image: silverruler/etherever-blockscout:v1.0
+    image: silverruler/etherever-blockscout:v1.1
     # 이제 인터넷에서 받아와야 하므로 pull_policy: never는 삭제하거나 주석 처리
     # [수정됨] Docker Hub에서 찾지 않고 로컬 이미지를 강제로 사용
     #pull_policy: never
-    
+
     depends_on:
       - db
       - redis-db
@@ -59,24 +59,24 @@ services:
       ECT_FETCH_INTERNAL_TRANSACTIONS: 'false'
 
       # === [토큰 전송 인덱싱 끄기 - 핵심!] ===
-      INDEXER_TOKEN_TRANSFERS_ENABLE: 'false'
-      INDEXER_TOKEN_BALANCES_FETCHER_ENABLED: 'false'
-      INDEXER_DISABLE_TOKEN_INSTANCE_FETCHER: 'false'
+      INDEXER_TOKEN_TRANSFERS_ENABLE: 'true'
+      #INDEXER_TOKEN_BALANCES_FETCHER_ENABLED: 'false'
+      #INDEXER_DISABLE_TOKEN_INSTANCE_FETCHER: 'false'
 
       # [추가 1: 명시적으로 Token Transfer 비활성화 (v4~v6+ 호환)]
-      INDEXER_DISABLE_TOKEN_TRANSFERS: 'true'
+      #INDEXER_DISABLE_TOKEN_TRANSFERS: 'true'
 
       # [추가 2: 인덱서가 토큰 잔액 업데이트를 시도하지 않도록 설정]
-      INDEXER_DISABLE_ADDRESS_TOKEN_BALANCE_UPDATE: 'true'
+      #INDEXER_DISABLE_ADDRESS_TOKEN_BALANCE_UPDATE: 'true'
 
       # [추가 3: 실시간 페처도 확실히 끄기]
-      ECT_FETCH_TOKEN_TRANSFERS: 'false'
+      #ECT_FETCH_TOKEN_TRANSFERS: 'false'
 
       # [추가 4: 중요 - Catchup 과정에서 실패 시 재시도 하지 않음]
       INDEXER_CATCHUP_SILENT_ERRORS: 'true'
 
       # 추가 설정
-      INDEXER_CATCH_MISSING_TOKEN_BALANCES: 'false'
+      #INDEXER_CATCH_MISSING_TOKEN_BALANCES: 'false'
 
       # === [최적화 설정] ===
       #INDEXER_CATCHUP_BLOCK_INTERVAL: '10'
